@@ -48,7 +48,7 @@ Plaintext
 Clone the Repository:
 
 Bash
-git clone https://github.com/your-username/zen-notes-keeper.git
+git clone [https://github.com/your-username/zen-notes-keeper.git](https://github.com/udaykiran1324uk-gif/zen-notes-keeper.git)
 Run the Application:
 Open login.html in any modern web browser.
 
