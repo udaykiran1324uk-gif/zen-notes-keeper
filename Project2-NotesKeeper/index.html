@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Notes Keeper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Professional Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="bi bi-journal-bookmark-fill text-primary me-2"></i>
+                Notes Keeper
+            </a>
+            <div class="d-flex align-items-center">
+                <div class="me-4 d-none d-md-flex align-items-center bg-light px-3 py-2 rounded-pill">
+                    <span class="small fw-bold text-muted me-2">ACTIVE ENTRIES:</span>
+                    <span class="badge bg-primary rounded-pill" id="noteCount">0</span>
+                </div>
+                <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#noteModal">
+                    <i class="bi bi-plus-lg me-2"></i>New Entry
+                </button>
+                <div class="ms-4 dropdown">
+                    <button class="btn btn-light rounded-pill px-3 py-2 shadow-sm d-flex align-items-center" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle fs-5 text-primary me-2"></i>
+                        <span class="fw-bold small" id="usernameDisplay">User</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-3 p-2" style="border-radius: 1rem; min-width: 200px;">
+                        <li><h6 class="dropdown-header text-uppercase small fw-bold text-muted">Account Settings</h6></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><button class="dropdown-item rounded-2 py-2 text-danger fw-600" onclick="logout()">
+                            <i class="bi bi-power me-2"></i>Sign Out
+                        </button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <!-- Search & Tabs -->
+        <div class="row mb-5 align-items-center g-3">
+            <div class="col-lg-8">
+                <div class="search-container position-relative mb-0">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" id="searchInput" class="form-control search-input" placeholder="Search entries, keywords, or topics...">
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex justify-content-lg-end">
+                <div class="nav nav-pills bg-white p-1 rounded-3 shadow-sm" role="tablist">
+                    <button class="nav-link active px-4 py-2" id="nav-active-tab" data-bs-toggle="tab" data-bs-target="#nav-active" type="button" role="tab">Active</button>
+                    <button class="nav-link px-4 py-2" id="nav-trash-tab" data-bs-toggle="tab" data-bs-target="#nav-trash" type="button" role="tab" onclick="loadTrash()">Trash</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="nav-active" role="tabpanel">
+                <div class="row g-4" id="notesGrid">
+                    <!-- Dynamic Injection -->
+                </div>
+            </div>
+            <div class="tab-pane fade" id="nav-trash" role="tabpanel">
+                <div class="alert alert-warning rounded-3 mb-4 d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                    Items in trash are permanently deleted after 30 days.
+                </div>
+                <div class="row g-4" id="trashGrid">
+                    <!-- Dynamic Injection -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Note Modal (Create/Edit) -->
+    <div class="modal fade" id="noteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="modalTitle">New Entry</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="noteForm">
+                        <input type="hidden" id="noteId">
+                        <div class="mb-4">
+                            <label for="noteTitleInput" class="form-label small fw-bold text-muted text-uppercase tracking-wider">Title</label>
+                            <input type="text" class="form-control" id="noteTitleInput" placeholder="Give your note a headline..." required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="noteContentInput" class="form-label small fw-bold text-muted text-uppercase tracking-wider">Description</label>
+                            <textarea class="form-control" id="noteContentInput" rows="6" placeholder="Start typing your thoughts here..." required></textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Attachments</label>
+                            <div class="d-flex flex-wrap gap-2 mb-3" id="attachmentPreview"></div>
+                            <div class="input-group">
+                                <label class="input-group-text bg-white border-dashed text-primary cursor-pointer" for="fileInput">
+                                    <i class="bi bi-paperclip me-2"></i>Attach Image or File
+                                </label>
+                                <input type="file" class="d-none" id="fileInput" multiple accept="image/*,.pdf,.doc,.docx,.txt">
+                            </div>
+                            <div class="form-text text-muted small mt-2">Maximum file size: 20MB. Supports images, PDF, and Documents.</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="button" id="deleteBtn" class="btn btn-outline-danger d-none px-4" onclick="moveCurrentToTrash()">
+                                <i class="bi bi-trash-fill me-2"></i>Move to Trash
+                            </button>
+                            <div class="d-flex gap-2 ms-auto">
+                                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary px-5">Save Changes</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="db.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
